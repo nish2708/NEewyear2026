@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Happy New Year Jaanuu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #ffc0cb; /* Initial Light Pink */
+      --accent-pink: #ff4081;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Quicksand', sans-serif;
+      background-color: var(--bg-color);
+      transition: background-color 1s ease; /* Smooth color transition */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+      position: relative;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 30px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      max-width: 85%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 { 
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: #d81b60; 
+      margin-bottom: 10px; 
+    }
+
+    #countdown {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #ad1457;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    img {
+      width: 260px;
+      max-width: 100%;
+      border-radius: 20px;
+      display: none;
+      margin: 20px 0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      border: 5px solid white;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 14px 35px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      background: var(--accent-pink);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 64, 129, 0.3);
+      transition: all 0.3s ease;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    button:hover { transform: scale(1.1); background: #f06292; }
+
+    #finalPage { display: none; }
+
+    #typewriterText {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: #333;
+      font-weight: 500;
+      margin-bottom: 15px;
+      min-height: 120px;
+    }
+
+    canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
+
+    .heart {
+      position: fixed;
+      font-size: 2.2rem;
+      pointer-events: none;
+      z-index: 10;
+      animation: flyUp 1.2s ease-out forwards;
+    }
+
+    @keyframes flyUp {
+      0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-250px) scale(1.8) rotate(45deg); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="fireworks"></canvas>
+
+  <div class="container" id="mainPage">
+    <h1>🎉 Happy New Year 🎉</h1>
+    <div id="countdown">Loading...</div>
+    <img id="revealImg">
+    <button id="nextBtn" onclick="nextStep(event)">Next 🎁</button>
+  </div>
+
+  <div class="container" id="finalPage">
+    <h1>✨ 2026 ✨</h1>
+    <div id="typewriterText"></div>
+    <h2 id="finalEmoji" style="font-family: 'Dancing Script', cursive; color:#d81b60; opacity: 0; transition: opacity 1.5s; font-size: 2rem;">lysm tindasur🧿🫶🫀💗</h2>
+  </div>
+
+<script>
+    let step = 0;
+    const message = "heyyoo jaanuu its a neww yearr soo i just wanna say that no matter how much chaos we might have faced in the last year this year will be full of happiness and peace for us and no problems will occur and we our bond also get stronger with every passing day in this gonna be great year and i also wish for us to get better in our academics";
+
+    // Colors per step: [Start, Step 1, Step 2, Final]
+    const stageColors = ['#ffc0cb', '#f8bbd0', '#e1bee7', '#fce4ec'];
+
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Countdown Logic
+    const newYear = new Date("January 1, 2026 00:00:00").getTime();
+    setInterval(() => {
+        const now = Date.now();
+        const distance = newYear - now;
+        const countdownEl = document.getElementById("countdown");
+        if (distance <= 0) {
+            countdownEl.innerHTML = "🎉 HAPPY NEW YEAR! 🎉";
+            return;
+        }
+        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const h = Math.floor((distance / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((distance / (1000 * 60)) % 60);
+        const s = Math.floor((distance / 1000) % 60);
+        countdownEl.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+    }, 1000);
+
+    // Typewriter
+    function typeWriter(text, i, fnCallback) {
+      if (i < text.length) {
+        document.getElementById("typewriterText").innerHTML = text.substring(0, i+1) + '<span style="color:#ff4081">|</span>';
+        setTimeout(() => typeWriter(text, i + 1, fnCallback), 45);
+      } else if (typeof fnCallback == 'function') {
+        document.getElementById("typewriterText").innerHTML = text;
+        fnCallback();
+      }
+    }
+
+    // Firework & Heart Effects
+    function createFirework(x, y) {
+        for (let i = 0; i < 40; i++) {
+            particles.push({
+                x, y,
+                angle: Math.random() * 2 * Math.PI,
+                speed: Math.random() * 5 + 1,
+                life: 50,
+                color: `hsl(${Math.random()*360}, 100%, 70%)`,
+                radius: Math.random() * 2 + 1
+            });
+        }
+    }
+
+    function createHeartBurst(e) {
+      const hearts = ['❤️', '💖', '💗', '💓', '✨', '🫀'];
+      const x = e.clientX || window.innerWidth/2;
+      const y = e.clientY || window.innerHeight/2;
+      for (let i = 0; i < 10; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+        heart.style.left = (x - 20 + (Math.random() * 50 - 25)) + 'px';
+        heart.style.top = (y - 20) + 'px';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1200);
+      }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, i) => {
+            p.x += Math.cos(p.angle) * p.speed;
+            p.y += Math.sin(p.angle) * p.speed;
+            p.life--;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+            ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 50; ctx.fill();
+            if (p.life <= 0) particles.splice(i, 1);
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.nextStep = function (e) {
+        step++;
+        const img = document.getElementById("revealImg");
+        
+        // Update background color based on step
+        document.body.style.backgroundColor = stageColors[step] || stageColors[stageColors.length-1];
+
+        if (step === 1) {
+            img.src = "https://uploads.onecompiler.io/43ym2b2vr/442rvxaaz/63050.jpg";
+            img.style.display = "block";
+        } 
+        else if (step === 2) {
+            img.src = "https://uploads.onecompiler.io/43ym2b2vr/4496udqk8/97343.jpg";
+            img.style.display = "block";
+        } 
+        else if (step === 3) {
+            document.getElementById("mainPage").style.display = "none";
+            document.getElementById("finalPage").style.display = "flex";
+            setTimeout(() => {
+                typeWriter(message, 0, () => {
+                    document.getElementById("finalEmoji").style.opacity = "1";
+                    setInterval(() => {
+                        createFirework(Math.random()*canvas.width, Math.random()*canvas.height/2);
+                    }, 1000);
+                });
+            }, 500);
+        }
+        createFirework(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2);
+        createHeartBurst(e);
+    };
+</script>
+
+</body>
+</html>
